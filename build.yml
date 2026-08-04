@@ -1,0 +1,40 @@
+name: Build EXE
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install pyinstaller pyautogui keyboard
+
+      - name: Build 대기버전 EXE
+        run: |
+          pyinstaller --onefile --windowed --name "층뿌리기_자동화" `
+            --hidden-import=pyautogui --hidden-import=keyboard `
+            main.py
+
+      - name: Build 즉시실행버전 EXE
+        run: |
+          pyinstaller --onefile --windowed --name "층뿌리기_자동화_즉시실행" `
+            --hidden-import=pyautogui --hidden-import=keyboard `
+            main_instant.py
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: 층뿌리기_자동화_전체
+          path: |
+            dist/층뿌리기_자동화.exe
+            dist/층뿌리기_자동화_즉시실행.exe
+          retention-days: 90
